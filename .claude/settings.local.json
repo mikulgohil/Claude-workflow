@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "mcp__perplexity-ask__perplexity_ask",
-      "mcp__desktop-commander__list_directory"
+      "mcp__desktop-commander__list_directory",
+      "Bash(git commit:*)",
+      "WebFetch(domain:www.mikul.in)"
     ]
   }
 }

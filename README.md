@@ -1,84 +1,213 @@
-# AI-Assisted Frontend Development Workflow
+<div align="center">
 
-A comprehensive workflow and ruleset for AI (Claude) to follow when assisting with frontend development projects.
+```
+   _   ___   ___       _  __  _____  _    ______   __
+  /_\ |_ _| |   \__ __| |/ / | __\ \/ /  / ___\ \ / /
+ / _ \ | |  | |) / _` | ' <  | _| >  <  | |    \ V /
+/_/ \_\___| |___/\__,_|_|\_\ |___/_/\_\ |_|     |_|
 
-## Purpose
+         AI-Assisted Frontend Development Workflow
+```
 
-This workflow ensures:
-- Consistent, high-quality development practices
-- Proper understanding of projects before making changes
-- Clear communication and decision-making
-- Documentation of lessons learned to prevent repeated mistakes
-- Proper testing strategies (automated or manual)
-- Complete component documentation
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
+[![Markdown](https://img.shields.io/badge/Made%20with-Markdown-1f425f.svg)](https://www.markdownguide.org/)
+[![Claude Code](https://img.shields.io/badge/Claude-Code-blueviolet)](https://claude.ai)
 
-## Files
+**A comprehensive, battle-tested workflow framework for AI assistants (Claude, GPT, etc.) to follow when helping with frontend development projects.**
 
-### Main Workflow
-- **`WORKFLOW.md`** - The main workflow document that AI should follow
+[Getting Started](#quick-start) · [Workflow Phases](#the-8-phase-workflow) · [Templates](#templates) · [Author](#author)
 
-### Templates (in `/templates`)
-- **`PROJECT_OVERVIEW.template.md`** - Template for documenting project understanding
-- **`COMPONENT_DOC.template.md`** - Template for component documentation
-- **`ADR.template.md`** - Architectural Decision Record template
-- **`LESSONS_LEARNED.template.md`** - Template for tracking failed approaches
-- **`TESTING_STRATEGY.template.md`** - Template for testing approach documentation
-- **`MANUAL_TEST_CHECKLIST.template.md`** - Template for manual testing
+</div>
 
-## How to Use
+---
 
-### For New Projects
+## Why Use This Workflow?
 
-1. Copy this workflow folder to your project or reference it globally
-2. AI will ask initial setup questions (Phase 0)
-3. AI will analyze and document project structure (Phase 1)
-4. Create project-specific docs using templates in `./docs/`
+Building software with AI assistance is powerful, but without structure it can lead to:
+- Inconsistent code patterns
+- Undocumented decisions
+- Repeated mistakes
+- Poor testing coverage
+- Incomplete implementations
 
-### During Development
+**This workflow solves these problems** by providing a structured, phase-based approach that AI assistants follow, ensuring every task is properly planned, implemented, tested, and documented.
 
-1. AI follows phases 2-7 for each task
-2. Lessons learned are recorded in `LESSONS_LEARNED.md`
-3. Decisions are documented in `DECISIONS.md` (using ADR template)
-4. Components are documented using the component template
+## Key Features
 
-### Key Principles
+- **8-Phase Development Cycle** - From project discovery to review
+- **Never Commits Code** - AI never runs git commit; you maintain full control
+- **Lessons Learned Tracking** - Failed approaches are documented to prevent repetition
+- **Testing Strategy** - Supports both Playwright automation and manual testing
+- **Component Documentation** - Every component gets proper documentation
+- **Decision Records (ADR)** - Significant decisions are tracked with context
 
-1. **Never assume** - Always ask when unclear
-2. **Document everything** - Especially failures
-3. **Follow existing patterns** - Match project conventions
-4. **Test appropriately** - Playwright if available, manual if not
-5. **Track progress** - Use TODO lists consistently
+## Project Structure
 
-## Quick Reference
+```
+workflow/
+├── .github/
+│   ├── workflows/
+│   │   └── validate-markdown.yml   # CI for markdown linting
+│   └── mlc_config.json             # Markdown link checker config
+├── templates/                       # Documentation templates
+│   ├── PROJECT_OVERVIEW.template.md
+│   ├── COMPONENT_DOC.template.md
+│   ├── ADR.template.md
+│   ├── LESSONS_LEARNED.template.md
+│   ├── TESTING_STRATEGY.template.md
+│   └── MANUAL_TEST_CHECKLIST.template.md
+├── .gitignore                       # Git ignore rules
+├── LICENSE                          # MIT License
+├── README.md                        # This file
+└── WORKFLOW.md                      # Main workflow document (AI follows this)
+```
 
-### When AI Should Ask Questions
+## Quick Start
 
-- Multiple valid approaches exist
-- Requirements are ambiguous
-- Design decisions needed
-- Breaking changes possible
+### Option 1: Copy to Your Project (Recommended)
 
-### MCP Tools
+```bash
+# Clone or download this repo
+git clone https://github.com/yourusername/workflow.git
+
+# Copy to your project
+cp -r workflow/ your-project/
+```
+
+### Option 2: Reference Globally
+
+Point your AI assistant to this workflow at the start of each session.
+
+## The 8-Phase Workflow
+
+| Phase | Name | Description |
+|-------|------|-------------|
+| 0 | **Session Initialization** | Project detection, initial questions, setup |
+| 1 | **Project Discovery** | Analyze codebase, identify patterns |
+| 2 | **Requirements Gathering** | Understand task, clarify ambiguities |
+| 3 | **Task Planning** | Break down into atomic tasks, track progress |
+| 4 | **Implementation** | Write code following existing patterns |
+| 5 | **Testing & Validation** | Playwright or manual testing |
+| 6 | **Documentation** | Component docs, ADRs, updates |
+| 7 | **Review & Iteration** | Self-review, task summary, next steps |
+
+## Templates
+
+The `/templates` folder contains ready-to-use documentation templates:
+
+| Template | Purpose |
+|----------|---------|
+| `PROJECT_OVERVIEW.template.md` | Document project understanding and architecture |
+| `COMPONENT_DOC.template.md` | Standardized component documentation |
+| `ADR.template.md` | Architectural Decision Records |
+| `LESSONS_LEARNED.template.md` | Track failed approaches and anti-patterns |
+| `TESTING_STRATEGY.template.md` | Define testing approach for the project |
+| `MANUAL_TEST_CHECKLIST.template.md` | Checklists for manual testing |
+
+<!--
+NOTE FOR USERS: The /templates folder is INCLUDED in this solution intentionally.
+These templates are essential for the workflow to function properly. The AI uses
+these templates to create documentation in your project's ./docs/ folder.
+
+You should NOT need to modify these templates unless you want to customize the
+documentation format for your organization. If you do customize, consider keeping
+backups of the originals.
+-->
+
+## Core Principles
+
+### 1. AI Never Commits Code
+```
+The AI will NEVER run git commit, git push, or git add for commits.
+You always review changes and commit manually, maintaining full control
+over your version history.
+```
+
+### 2. Ask, Don't Assume
+When requirements are unclear, the AI asks questions instead of guessing.
+
+### 3. Document Everything
+Every decision, failure, and learning is documented for future reference.
+
+### 4. Follow Existing Patterns
+The AI matches your project's existing code style and patterns.
+
+### 5. Test Appropriately
+Uses Playwright when available, falls back to manual testing with detailed checklists.
+
+## MCP Tools Integration
+
+The workflow supports these MCP (Model Context Protocol) tools:
 
 | Tool | When to Use |
 |------|-------------|
-| Perplexity | Web search, latest practices |
-| Context7 | Language/framework docs |
-| Playwright | E2E browser testing |
-| Figma | Design-to-code |
+| **Perplexity** | Web search, latest practices, error solutions |
+| **Playwright** | E2E browser testing and automation |
+| **Figma** | Design-to-code implementation |
+| **Context7** | Language/framework documentation |
 
-### Testing Decision Tree
+## Example Task Summary
 
+After every task, the AI provides a detailed summary:
+
+```markdown
+## Task Summary: Add User Profile Component
+
+### Files Changed
+| File | Action | Description |
+|------|--------|-------------|
+| `src/components/UserProfile.tsx` | Created | New profile component |
+| `src/styles/profile.css` | Created | Profile styling |
+
+### Testing Status
+- ✅ Component renders correctly
+- ⏳ Needs manual testing for accessibility
+
+### Next Steps
+- [ ] Add unit tests
+- [ ] Integrate with API
 ```
-Playwright available?
-├── YES → Use Playwright E2E
-└── NO → Manual testing + debug logs
-```
-
-## Version
-
-**Current Version:** 1.0.0
 
 ## Contributing
 
-Update `WORKFLOW.md` as new patterns and learnings emerge.
+1. Fork this repository
+2. Make your changes to `WORKFLOW.md`
+3. Submit a pull request with a clear description
+
+## Version
+
+**Current Version:** 1.2.0
+
+| Version | Changes |
+|---------|---------|
+| 1.2.0 | Added mandatory detailed task summary requirement |
+| 1.1.0 | Added critical rules, server management protocol |
+| 1.0.0 | Initial workflow creation |
+
+## Author
+
+<div align="center">
+
+**Mikul Gohil**
+
+Senior Frontend Engineer · Dubai · 15+ Years Experience
+
+[![Website](https://img.shields.io/badge/Website-mikul.in-0A66C2?style=for-the-badge&logo=google-chrome&logoColor=white)](https://www.mikul.in)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/mikulg)
+[![GitHub](https://img.shields.io/badge/GitHub-Follow-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/mikulg)
+[![Forem](https://img.shields.io/badge/Forem-Community-5A67D8?style=for-the-badge&logo=forem&logoColor=white)](https://forem.com/mikulg)
+
+</div>
+
+**Expertise:** React.js · Next.js · TypeScript · Tailwind CSS · Sitecore XM Cloud
+
+**Focus Areas:** Agentic AI workflows, Claude Code automation, and no-code web applications
+
+## License
+
+MIT License - feel free to use, modify, and distribute.
+
+---
+
+**Created by [Mikul Gohil](https://www.mikul.in) — Made with AI assistance, reviewed by humans.**
