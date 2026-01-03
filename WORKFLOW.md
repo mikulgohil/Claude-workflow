@@ -64,20 +64,103 @@
 
 ---
 
+## Response & Communication Style
+
+### Response Verbosity Control
+
+```
+VERBOSITY MODES:
+
+CONCISE MODE (Default for simple tasks)
+- One-word or one-line answers when possible
+- No preamble ("Here is...", "I will...")
+- No postamble ("Let me know if...", "Hope this helps...")
+- Code output without explanation unless asked
+- Examples:
+  user: "2 + 2"
+  assistant: "4"
+
+  user: "what command lists files?"
+  assistant: "ls"
+
+DETAILED MODE (For complex explanations)
+- Use when user asks "explain", "why", "how does this work"
+- Use for architectural decisions
+- Use when presenting options
+- Include reasoning and trade-offs
+
+AUTO-DETECT:
+- Questions → Answer first, THEN offer to take action
+- Commands → Execute with minimal commentary
+- "Help me with X" → Brief plan, then execute
+- "Explain X" → Detailed explanation
+```
+
+### Answer First Protocol
+
+**CRITICAL: Always answer the user's question before taking action.**
+
+```
+ANSWER FIRST PROTOCOL:
+
+WRONG APPROACH:
+user: "How should I approach adding authentication?"
+assistant: [immediately starts writing auth code]
+
+CORRECT APPROACH:
+user: "How should I approach adding authentication?"
+assistant: "I recommend using JWT with refresh tokens because [reasons].
+            Here are the steps:
+            1. Set up auth middleware
+            2. Create login/register endpoints
+            3. Add protected route wrapper
+
+            Would you like me to implement this?"
+
+WHEN TO ANSWER FIRST:
+□ "How should I..." → Explain approach, then offer to implement
+□ "What's the best way to..." → Compare options, then recommend
+□ "Can you help me..." → Clarify scope, then proceed
+□ "Why is this..." → Explain cause, then offer fix if applicable
+
+WHEN TO ACT IMMEDIATELY:
+□ "Fix this bug" → Fix it
+□ "Add a button that..." → Add it
+□ "Run the tests" → Run them
+□ "Create a component for..." → Create it
+```
+
+---
+
 ## Table of Contents
 
-1. [Phase 0: Session Initialization](#phase-0-session-initialization)
-2. [Phase 1: Project Discovery & Understanding](#phase-1-project-discovery--understanding)
-3. [Phase 2: Requirements Gathering](#phase-2-requirements-gathering)
-4. [Phase 3: Task Planning & Management](#phase-3-task-planning--management)
-5. [Phase 4: Implementation](#phase-4-implementation)
-6. [Phase 5: Testing & Validation](#phase-5-testing--validation)
-7. [Phase 6: Documentation](#phase-6-documentation)
-8. [Phase 7: Review & Iteration](#phase-7-review--iteration)
-9. [Knowledge Management](#knowledge-management)
-10. [MCP Tools Reference](#mcp-tools-reference)
-11. [Decision Framework](#decision-framework)
-12. [Anti-Patterns & Lessons Learned](#anti-patterns--lessons-learned)
+1. [Response & Communication Style](#response--communication-style)
+   - [Response Verbosity Control](#response-verbosity-control)
+   - [Answer First Protocol](#answer-first-protocol)
+2. [Phase 0: Session Initialization](#phase-0-session-initialization)
+   - [CLAUDE.md Setup](#step-04-initialize-claudemd-claude-code-context-file)
+   - [Hooks & Automation](#phase-05-hooks--automation-setup)
+3. [Phase 1: Project Discovery & Understanding](#phase-1-project-discovery--understanding)
+4. [Phase 2: Requirements Gathering](#phase-2-requirements-gathering)
+5. [Phase 3: Task Planning & Management](#phase-3-task-planning--management)
+6. [Phase 4: Implementation](#phase-4-implementation)
+   - [Library & Dependency Verification](#library--dependency-verification)
+7. [Phase 5: Testing & Validation](#phase-5-testing--validation)
+8. [Phase 6: Documentation](#phase-6-documentation)
+9. [Phase 7: Review & Iteration](#phase-7-review--iteration)
+10. [Knowledge Management](#knowledge-management)
+11. [Context Management](#context-management)
+    - [Context Rot Prevention](#context-rot-prevention)
+    - [Multi-Worktree Collaboration](#multi-worktree-collaboration)
+    - [Session State Management](#session-state-management)
+12. [MCP Tools Reference](#mcp-tools-reference)
+    - [MCP Integration Workflows](#mcp-integration-workflows)
+    - [CLI Flags for Automation](#cli-flags-for-automation)
+13. [Recovery & Debugging Protocols](#recovery--debugging-protocols)
+14. [Background Process Management](#background-process-management)
+15. [Agent Delegation Patterns](#agent-delegation-patterns)
+16. [Decision Framework](#decision-framework)
+17. [Anti-Patterns & Lessons Learned](#anti-patterns--lessons-learned)
 
 ---
 
@@ -120,6 +203,192 @@ CREATE in ./docs/ or ./documentation/:
 ├── LESSONS_LEARNED.md       # Failed approaches and anti-patterns
 ├── TESTING_STRATEGY.md      # Testing approach documentation
 └── SETUP.md                 # Development environment setup
+```
+
+#### Step 0.4: Initialize CLAUDE.md (Claude Code Context File)
+
+**CRITICAL: CLAUDE.md is automatically loaded by Claude Code for every conversation.**
+
+```
+CLAUDE.MD INITIALIZATION:
+
+1. AUTO-GENERATE with /init command
+   - Run `/init` in Claude Code CLI
+   - Scans entire codebase automatically
+   - Detects technologies, structure, dependencies
+   - Creates initial CLAUDE.md at project root
+
+2. FILE HIERARCHY (loaded in order)
+   ~/.claude/CLAUDE.md          # Global (all projects)
+   ./CLAUDE.md                  # Project root (team-shared)
+   ./.claude/settings.json      # Project settings (committed)
+   ./.claude/settings.local.json # Personal settings (git-ignored)
+   ./.claude/local.md           # Personal notes (git-ignored)
+   ./subdir/CLAUDE.md           # Subdirectory context (monorepos)
+
+3. WHAT TO INCLUDE
+   ✓ Project purpose and goals
+   ✓ Technology stack with versions
+   ✓ Repository structure overview
+   ✓ Code style guidelines
+   ✓ Common bash commands (build, test, lint)
+   ✓ Testing instructions
+   ✓ Branch naming conventions
+   ✓ Environment setup requirements
+   ✓ Project-specific warnings
+
+4. WHAT TO AVOID
+   ✗ Lengthy inline documentation (reference file paths instead)
+   ✗ Task-specific instructions (use separate files)
+   ✗ Bloated content (affects token usage)
+
+5. RECOMMENDED STRUCTURE FOR LARGE PROJECTS
+   agent_docs/
+   ├── building_the_project.md
+   ├── running_tests.md
+   ├── code_conventions.md
+   ├── service_architecture.md
+   └── database_schema.md
+
+   Then in CLAUDE.md, list these files with brief descriptions
+   and instruct Claude to read relevant ones before starting work.
+```
+
+**CLAUDE.md Template:**
+```markdown
+# Project Name
+
+## Overview
+Brief description of the project and its purpose.
+
+## Tech Stack
+- Framework: Next.js 14
+- Language: TypeScript 5.x
+- Styling: Tailwind CSS
+- State: Zustand
+- Testing: Jest + Playwright
+
+## Project Structure
+src/
+├── components/    # Reusable UI components
+├── pages/         # Next.js pages
+├── hooks/         # Custom React hooks
+├── utils/         # Utility functions
+└── types/         # TypeScript definitions
+
+## Commands
+- `npm run dev` - Start development server
+- `npm run build` - Production build
+- `npm run test` - Run unit tests
+- `npm run lint` - Run ESLint
+
+## Code Conventions
+- Use functional components with hooks
+- Prefer named exports
+- Use TypeScript strict mode
+- Follow ESLint + Prettier configuration
+
+## Important Notes
+- [Add project-specific warnings here]
+- [Add unexpected behaviors here]
+
+## Related Documentation
+- See `agent_docs/` for detailed guides
+```
+
+---
+
+## Phase 0.5: Hooks & Automation Setup
+
+### Configure Claude Code Hooks
+
+Hooks automate actions in response to Claude Code events. Configure in `.claude/settings.json`:
+
+```json
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write(*.ts)",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx prettier --write \"$file\""
+          }
+        ]
+      },
+      {
+        "matcher": "Write(*.tsx)",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx eslint --fix \"$file\""
+          }
+        ]
+      },
+      {
+        "matcher": "Write(*.css)",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx prettier --write \"$file\""
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### Available Hook Events
+
+```
+HOOK EVENTS:
+
+1. PreToolUse
+   - Runs BEFORE a tool executes
+   - Can block or modify the action
+   - Use for: validation, confirmation prompts
+
+2. PostToolUse
+   - Runs AFTER a tool completes
+   - Use for: formatting, linting, notifications
+
+3. UserPromptSubmit
+   - Runs when user submits a prompt
+   - Use for: input preprocessing, logging
+
+4. SessionStart
+   - Runs when Claude Code session begins
+   - Use for: environment setup, context loading
+```
+
+### Common Hook Patterns
+
+```json
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write(*.py)",
+        "hooks": [{ "type": "command", "command": "python -m black \"$file\"" }]
+      },
+      {
+        "matcher": "Write(*.go)",
+        "hooks": [{ "type": "command", "command": "gofmt -w \"$file\"" }]
+      },
+      {
+        "matcher": "Write(package.json)",
+        "hooks": [{ "type": "command", "command": "npm install" }]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [{ "type": "command", "command": "git fetch origin" }]
+      }
+    ]
+  }
+}
 ```
 
 ---
@@ -360,6 +629,55 @@ IMPLEMENTATION RULES:
    - Include proper ARIA attributes
    - Ensure keyboard navigation
    - Test with screen readers
+
+6. NO COMMENTS UNLESS ASKED
+   - Do not add comments to code unless explicitly requested
+   - Code should be self-documenting
+   - Use descriptive variable/function names instead
+```
+
+#### Library & Dependency Verification
+
+**CRITICAL: NEVER assume a library is available, even if it's well-known.**
+
+```
+LIBRARY VERIFICATION PROTOCOL:
+
+BEFORE USING ANY LIBRARY:
+1. CHECK package.json (or cargo.toml, requirements.txt, etc.)
+   - Is the library already a dependency?
+   - What version is installed?
+
+2. IF LIBRARY EXISTS:
+   ✓ Use it following existing patterns in codebase
+   ✓ Check how it's imported in other files
+   ✓ Match the existing usage style
+
+3. IF LIBRARY DOESN'T EXIST:
+   ⚠️ ASK USER before adding new dependency
+   "This feature would benefit from [library].
+    Should I add it to the project, or use an alternative approach?"
+
+4. CHECK NEIGHBORING FILES
+   - How do similar components handle this?
+   - Are there existing utilities that do this?
+   - Is there a project-specific wrapper?
+
+VERIFICATION COMMANDS:
+# Check if package exists
+grep "library-name" package.json
+
+# Check how it's used
+grep -r "from 'library-name'" src/
+
+# Check for existing utilities
+ls src/utils/ src/helpers/ src/lib/
+
+COMMON MISTAKES TO AVOID:
+✗ Assuming lodash is available (check first)
+✗ Assuming axios when fetch might be used
+✗ Adding moment.js when date-fns is already installed
+✗ Using a UI library not in the project
 ```
 
 #### Component Development Pattern
@@ -894,6 +1212,154 @@ KNOWLEDGE CHECK:
 
 ---
 
+## Context Management
+
+### Context Window Optimization
+
+Effective context management is critical for AI-assisted development on large codebases.
+
+```
+CONTEXT MANAGEMENT STRATEGIES:
+
+1. TOKEN BUDGET MANAGEMENT
+   - Keep CLAUDE.md under 500 lines
+   - Use file references instead of inline content
+   - Define maximum token budget for context
+   - Respect latency when fetching context
+
+2. WRITE-SELECT-COMPRESS-ISOLATE FRAMEWORK
+   ┌─────────────────────────────────────────────────┐
+   │ WRITE    → Document context at session end      │
+   │ SELECT   → Choose only relevant snippets        │
+   │ COMPRESS → Summarize verbose documentation      │
+   │ ISOLATE  → Separate concerns into dedicated files│
+   └─────────────────────────────────────────────────┘
+
+3. FILE REFERENCE PATTERNS
+   - Use `@file.ts` to reference specific files in prompts
+   - Use `!bash-command` to include command output in prompts
+   - Use `--add-dir ../path` for additional context directories
+
+4. SESSION DOCUMENTATION
+   At end of each session, document:
+   - High-level progress summary
+   - Key decisions made
+   - Specific dependency versions used
+   - Learnings and gotchas discovered
+```
+
+### Context Rot Prevention
+
+**Context rot occurs when AI output degrades due to accumulated irrelevant or conflicting context.**
+
+```
+SYMPTOMS OF CONTEXT ROT:
+- Output degrades with more context
+- Code becomes bloated or off-target
+- Prompt drift occurs (losing focus on original task)
+- Style inconsistencies emerge
+- Repeated suggestions of already-rejected approaches
+
+PREVENTION STRATEGIES:
+
+1. REGULAR CONTEXT CLEANUP
+   □ Use /clear periodically to reset context
+   □ Use /compact to summarize long sessions
+   □ Split large tasks into focused sub-sessions
+   □ Remove completed tasks from active discussion
+
+2. CONTEXT HEALTH CHECKLIST
+   □ Is CLAUDE.md still accurate?
+   □ Are referenced files still current?
+   □ Has the project structure changed?
+   □ Are there conflicting instructions?
+
+3. SESSION SEGMENTATION
+   For long tasks, segment into focused sessions:
+
+   Session 1: Research & Planning
+   ↓ Document findings, clear context
+   Session 2: Core Implementation
+   ↓ Document progress, clear context
+   Session 3: Testing & Refinement
+   ↓ Document results, clear context
+   Session 4: Documentation & Cleanup
+
+4. CONTEXT REFRESH PROTOCOL
+   When context feels stale:
+   a. Run /clear to reset
+   b. Re-read CLAUDE.md with /init
+   c. Provide fresh, focused context
+   d. Resume with clear task definition
+```
+
+### Multi-Worktree Collaboration
+
+For parallel development across multiple branches:
+
+```
+MULTI-WORKTREE SETUP:
+
+1. CREATE WORKTREE FOR FEATURE BRANCH
+   git worktree add ../feature-branch-name feature-branch
+
+2. WORK IN SEPARATE CLAUDE SESSIONS
+   # Terminal 1 - Main branch
+   cd /project/main && claude
+
+   # Terminal 2 - Feature branch
+   cd /project/feature-branch-name && claude
+
+3. CONTEXT ISOLATION
+   - Each worktree has its own Claude session
+   - Changes don't pollute other sessions
+   - Easy A/B comparisons between approaches
+
+4. CLEANUP AFTER MERGE
+   git worktree remove ../feature-branch-name
+   git branch -d feature-branch
+
+BENEFITS:
+✓ Parallel feature development
+✓ Isolated contexts per branch
+✓ Easy context switching
+✓ No git stash juggling
+✓ Compare implementations side-by-side
+```
+
+### Session State Management
+
+```
+SESSION STATE PROTOCOL:
+
+AT SESSION START:
+1. Check for existing context files
+2. Review previous session notes
+3. Load relevant CLAUDE.md
+4. Set clear session objectives
+
+DURING SESSION:
+1. Track progress in TODO list
+2. Document decisions as they're made
+3. Note any blockers or questions
+4. Keep focused on current objective
+
+AT SESSION END:
+1. Summarize what was accomplished
+2. Document incomplete work
+3. Note next steps clearly
+4. Update CLAUDE.md if needed
+5. Clear or compact context for next session
+
+RESUMING INTERRUPTED SESSION:
+1. Use `claude -c` to continue previous session
+2. Or use /status to check current state
+3. Review what was in progress
+4. Re-establish context before continuing
+```
+
+---
+
 ## MCP Tools Reference
 
 ### When to Use Each Tool
@@ -944,6 +1410,337 @@ FOR ERROR RESOLUTION:
 2. Look for framework-specific solutions
 3. Check for version-specific fixes
 4. Try solutions in order of relevance
+```
+
+### MCP Integration Workflows
+
+```
+MCP WORKFLOW PATTERNS:
+
+1. FIGMA-TO-CODE WORKFLOW
+   ┌─────────────────────────────────────────────────────────────┐
+   │ show_frameworks      → Select target framework              │
+   │         ↓                                                   │
+   │ get_figma_data       → Extract design structure             │
+   │         ↓                                                   │
+   │ download_design_assets → Get images/icons                   │
+   │         ↓                                                   │
+   │ process_design_comments → Read designer annotations         │
+   │         ↓                                                   │
+   │ check_reference      → Analyze visual reference             │
+   │         ↓                                                   │
+   │ Implement components → Write code matching design           │
+   └─────────────────────────────────────────────────────────────┘
+
+2. RESEARCH-IMPLEMENT-VALIDATE WORKFLOW
+   ┌─────────────────────────────────────────────────────────────┐
+   │ perplexity_ask       → Research best practices              │
+   │         ↓                                                   │
+   │ Read existing code   → Understand current patterns          │
+   │         ↓                                                   │
+   │ Write/Edit           → Implement changes                    │
+   │         ↓                                                   │
+   │ browser_navigate     → Open for testing                     │
+   │         ↓                                                   │
+   │ browser_snapshot     → Verify functionality                 │
+   │         ↓                                                   │
+   │ browser_take_screenshot → Visual verification               │
+   └─────────────────────────────────────────────────────────────┘
+
+3. DEBUGGING WORKFLOW
+   ┌─────────────────────────────────────────────────────────────┐
+   │ Read error logs      → Understand the issue                 │
+   │         ↓                                                   │
+   │ perplexity_ask       → Search for solutions                 │
+   │         ↓                                                   │
+   │ Read relevant files  → Find affected code                   │
+   │         ↓                                                   │
+   │ Edit                 → Apply fix                            │
+   │         ↓                                                   │
+   │ browser_snapshot     → Verify fix works                     │
+   │         ↓                                                   │
+   │ Document in LESSONS_LEARNED.md                              │
+   └─────────────────────────────────────────────────────────────┘
+
+4. EXTERNAL SERVICE INTEGRATION (when configured)
+   - Google Docs → Pull specifications
+   - Jira/Linear → Update tickets with PR links
+   - Slack → Send notifications
+   - GitHub → Issue/PR management
+```
+
+### CLI Flags for Automation
+
+```
+CLAUDE CODE CLI FLAGS:
+
+SESSION MANAGEMENT:
+  claude -c                    # Continue previous session
+  claude -p "prompt"           # Run single prompt, then exit
+  claude --resume SESSION_ID   # Resume specific session
+
+OUTPUT CONTROL:
+  --output-format json         # JSON output for scripting
+  --output-format text         # Plain text output
+  --output-format markdown     # Markdown formatted output
+
+CONTEXT CONTROL:
+  --add-dir ../path            # Add additional directories
+  --model sonnet               # Use specific model
+  --allowedTools "Tool1" "Tool2"  # Pre-approve tools
+
+EXAMPLES:
+
+# Pipe input for analysis
+cat error.log | claude -p "explain these errors" --output-format json
+
+# Automated code review
+claude -p "review this PR for bugs" --allowedTools "Read" "Grep"
+
+# Generate and exit
+claude -p "create unit tests for auth module" --output-format text > tests.md
+```
+
+---
+
+## Recovery & Debugging Protocols
+
+### Debugging with AI
+
+```
+AI-ASSISTED DEBUGGING WORKFLOW:
+
+1. STREAM LOGS FOR MONITORING
+   tail -f logs/dev.log | claude -p "notify on new error patterns"
+
+2. TDD DEBUGGING CYCLE
+   Step 1: Write failing test that reproduces bug
+   Step 2: Ask AI to analyze and fix
+   Step 3: Validate with test
+   Step 4: Document fix
+
+3. ERROR RESOLUTION PATTERN
+   a. Capture full error message + stack trace
+   b. Include relevant file contents
+   c. Ask: "debug this error: [paste error]"
+   d. AI reads code, applies patches, validates
+
+4. STACK TRACE ANALYSIS
+   Provide:
+   - Full stack trace
+   - Relevant source files
+   - Recent changes
+   Ask for root cause analysis
+```
+
+### Session Recovery
+
+```
+SESSION RECOVERY PROTOCOL:
+
+AFTER UNEXPECTED INTERRUPTION:
+1. Check git status for uncommitted changes
+   git status
+   git diff
+
+2. Review what was in progress
+   - Check TODO list state
+   - Review recent file modifications
+   - Check for partial implementations
+
+3. Resume or restart session
+   Option A: claude -c (continue previous)
+   Option B: Start fresh with clear context
+
+4. Re-establish context
+   - Summarize what was done
+   - State what remains
+   - Continue from last known good state
+
+PREVENTING DATA LOSS:
+□ Commit frequently (user responsibility)
+□ Document progress in session notes
+□ Use /compact before complex operations
+□ Keep LESSONS_LEARNED.md updated
+```
+
+### Error Recovery Patterns
+
+```
+COMMON ERROR RECOVERY:
+
+1. BUILD FAILURES
+   - Read full error output
+   - Check for missing dependencies
+   - Verify TypeScript/lint configuration
+   - Check for circular dependencies
+
+2. RUNTIME ERRORS
+   - Check browser console
+   - Review network requests
+   - Verify API responses
+   - Check state management
+
+3. TEST FAILURES
+   - Run single test in isolation
+   - Check test setup/teardown
+   - Verify mocks and stubs
+   - Review async handling
+
+4. DEPLOYMENT FAILURES
+   - Check environment variables
+   - Verify build output
+   - Review deployment logs
+   - Check resource limits
+
+ESCALATION PATH:
+Try fix → Document attempt → Research solution →
+Ask for clarification → Try alternative approach →
+Document in LESSONS_LEARNED.md
+```
+
+---
+
+## Background Process Management
+
+### Long-Running Tasks
+
+For development servers, build watchers, and other long-running processes:
+
+```
+BACKGROUND PROCESS PROTOCOL:
+
+1. STARTING BACKGROUND PROCESSES
+   - Use `run_in_background` parameter for long-running commands
+   - Do NOT use '&' at end of command (handled automatically)
+   - Never use `run_in_background` for 'sleep' (returns immediately)
+
+2. MONITORING BACKGROUND PROCESSES
+   - Use BashOutput tool to check process output
+   - Check periodically for errors or completion
+   - Use filter parameter to find specific log patterns
+
+3. MANAGING MULTIPLE PROCESSES
+   - Use /bashes command to list all running shells
+   - Track shell IDs for each process
+   - Clean up unused processes
+
+4. TERMINATING PROCESSES
+   - Use KillBash tool with shell_id
+   - Verify termination was successful
+   - Check for orphaned child processes
+```
+
+### Common Background Tasks
+
+```
+BACKGROUND TASK EXAMPLES:
+
+DEV SERVER:
+- Start: npm run dev (with run_in_background: true)
+- Monitor: BashOutput with shell_id
+- Kill: KillBash when done
+
+BUILD WATCHER:
+- Start: npm run build:watch
+- Monitor: Look for "compiled successfully" or errors
+- Restart: Kill and restart on config changes
+
+TEST WATCHER:
+- Start: npm run test:watch
+- Monitor: Filter for "PASS" or "FAIL"
+- Check: Review failing tests in output
+
+LOG MONITORING:
+- Start: tail -f logs/app.log
+- Filter: BashOutput with regex pattern
+- Alert: Check for ERROR or WARN patterns
+```
+
+### Process Cleanup Checklist
+
+```
+BEFORE ENDING SESSION:
+□ List all running background shells (/bashes)
+□ Kill unnecessary processes
+□ Verify dev servers are stopped
+□ Check for orphaned node processes
+□ Confirm ports are freed (lsof -i :PORT)
+```
+
+---
+
+## Agent Delegation Patterns
+
+### When to Use Sub-Agents
+
+Use the Task tool to spawn specialized agents for complex operations:
+
+```
+AGENT DELEGATION DECISION TREE:
+
+IS THE TASK COMPLEX AND MULTI-STEP?
+├── YES → Consider agent delegation
+│   │
+│   ├── CODE REVIEW NEEDED?
+│   │   └── Spawn code-reviewer agent after significant code changes
+│   │
+│   ├── RESEARCH REQUIRED?
+│   │   └── Spawn general-purpose agent for codebase exploration
+│   │
+│   ├── MULTI-FILE SEARCH?
+│   │   └── Spawn agent instead of multiple Glob/Grep calls
+│   │
+│   └── CONFIGURATION TASK?
+│       └── Spawn specialized agent (statusline-setup, etc.)
+│
+└── NO → Handle directly with standard tools
+```
+
+### Agent Communication Best Practices
+
+```
+AGENT PROMPT GUIDELINES:
+
+1. BE SPECIFIC
+   ✗ "Review the code"
+   ✓ "Review src/auth/login.ts for security vulnerabilities,
+      focusing on input validation and SQL injection risks"
+
+2. DEFINE OUTPUT FORMAT
+   ✗ "Check for issues"
+   ✓ "Return a JSON object with: {issues: [], suggestions: [],
+      severity: 'low'|'medium'|'high'}"
+
+3. SPECIFY SCOPE
+   ✗ "Fix the bugs"
+   ✓ "Fix the type errors in src/components/*.tsx files only.
+      Do not modify test files or configuration."
+
+4. CLARIFY READ vs WRITE
+   ✗ "Help with authentication"
+   ✓ "Research authentication patterns in codebase.
+      Do NOT write any code, only report findings."
+```
+
+### Parallel Agent Execution
+
+```
+PARALLEL AGENTS:
+
+When tasks are independent, launch multiple agents simultaneously:
+
+EXAMPLE - Full Project Review:
+1. Agent 1: Security review of auth modules
+2. Agent 2: Performance analysis of data fetching
+3. Agent 3: Accessibility audit of UI components
+
+Launch all three in ONE message with multiple Task tool calls.
+
+RESULTS:
+- Faster completion
+- Independent context for each
+- Combine findings in summary
 ```
 
 ---
@@ -1115,6 +1912,8 @@ WHEN STUCK:
 | 1.0.0 | 2025-01-02 | Initial workflow creation |
 | 1.1.0 | 2025-01-02 | Added CRITICAL RULES section (never commit), Server management protocol for Playwright testing |
 | 1.2.0 | 2025-01-02 | Added mandatory detailed task summary requirement with template |
+| 1.3.0 | 2025-01-03 | Added CLAUDE.md setup guide with /init command, Hooks & Automation section, Context Management strategies, Context Rot Prevention, Multi-Worktree Collaboration, Enhanced MCP Integration Workflows, CLI Flags for Automation, Recovery & Debugging Protocols |
+| 1.4.0 | 2025-01-03 | Added Response Verbosity Control, Answer First Protocol, Library Verification Rule, Background Process Management, Agent Delegation Patterns |
 
 ---
 
